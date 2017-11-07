@@ -18,7 +18,15 @@ html, body {
   font-family: 'Roboto', 'Helvetica', sans-serif;
   margin: 0;
   padding: 0;
+},
+.view {
+       height: 100%;
 }
+
+//.logo { background: url("images/logo.png") no-repeat; display: block;}
+
+
+
 .mdl-demo .mdl-layout__header-row {
   padding-left: 40px;
 }
@@ -236,3 +244,12 @@ html, body {
 .mdl-demo .mdl-menu__container {
   z-index: 99;
 }
+
+
+ .view {
+      background: url("images/Background.png")no-repeat center center fixed;
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+      background-size: cover;
+  }

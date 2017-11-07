@@ -1,16 +1,18 @@
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
   <header class="mdl-layout__header mdl-layout__header--scroll mdl-color--primary">
     <div class="mdl-layout--large-screen-only mdl-layout__header-row">
-      <h3>
+      <!--<a class="logo" href="/"></a>-->
+      <img src="../../assets/logo.png" style="float:left" width="215" height="65">
+      <h2>
         {{title}}
-      </h3>
+      </h2>
     </div>
 
     <div class="mdl-layout__tab-bar mdl-js-ripple-effect mdl-color--primary-dark">
       <nav>
         <a routerLink="view-pipeline" class="mdl-layout__tab" role="button" routerLinkActive="active">Dashboard</a>
         <a routerLink="new-pipeline" class="mdl-layout__tab is-active" role="button" routerLinkActive="active">Create new pipeline</a>
-        <a routerLink="new-pipeline" class="mdl-layout__tab" role="button" routerLinkActive="active">Add new data source</a>
+        <a routerLink="add-pipelines-source" class="mdl-layout__tab" role="button" routerLinkActive="active">Add new data source</a>
         <a routerLink="new-pipeline" class="mdl-layout__tab" role="button" routerLinkActive="active">Add new etl scheme</a>
         <a routerLink="new-pipeline" class="mdl-layout__tab" role="button" routerLinkActive="active">Add new data sink</a>
         <a routerLink="new-pipeline" class="mdl-layout__tab" role="button" routerLinkActive="active">Un/Deploy pipelines</a>
