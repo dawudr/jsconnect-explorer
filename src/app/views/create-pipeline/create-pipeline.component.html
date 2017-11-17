@@ -1,0 +1,215 @@
+<div class="animated fadeIn">
+<section class="container">
+
+  <div class="card">
+    <div class="card-body">
+      <h2 class="card-title">Create pipeline</h2>
+      <h6 class="card-subtitle mb-2 text-muted">Use wizard to build a new JSConnect adapter data pipeline and begin ingesting data for a data domain.</h6>
+
+      <form-wizard (onStepChanged)="onStepChanged($event)">
+        <wizard-step [title]="'1 - Connect'" [isValid]="emailForm.form.valid" (onNext)="onStep1Next($event)">
+          <h4>Connect</h4>
+          <p class="lead">Connect to a data source</p>
+          <form #emailForm="ngForm">
+            <div class="form-group">
+              <label for="adapter.pipelineId">Pipeline ID</label>
+              <input type="text"
+                     class="form-control"
+                     id="adapter.pipelineId"
+                     name="adapter.pipelineId"
+                     aria-describedby="adapter.pipelineId.Help"
+                     placeholder="Enter Pipeline ID"
+                     [(ngModel)]="data.adapter.pipelineId" required/>
+              <small id="adapter.pipelineId.Help"
+                     class="form-text text-muted">Define unique a name to identify this data domain pipeline</small>
+            </div>
+            <div class="form-group">
+              <label class="form-check-label"
+                     for="adapter.checkpoints.enabled">
+                <input type="checkbox"
+                       class="form-check-input"
+                       id="adapter.checkpoints.enabled"
+                       name="adapter.checkpoints.enabled"
+                       aria-describedby="adapter.checkpoints.enabled.Help"/>
+                Enable checkpointing
+              </label>
+              <small id="adapter.checkpoints.enabled.Help"
+                     class="form-text text-muted">Automatically recover from connection failures.</small>
+            </div>
+            <div class="form-group">
+              <label class="form-check-label" for="adapter.metrics.enabled">
+                <input type="checkbox"
+                       class="form-check-input"
+                       id="adapter.metrics.enabled"
+                       name="adapter.metrics.enabled"
+                       aria-describedby="adapter.metrics.enabled.Help"/>
+                Enable Metrics</label>
+              <small id="adapter.metrics.enabled.Help"
+                     class="form-text text-muted">Generate performance metrics for this adapter.</small>
+            </div>
+            <div class="form-group">
+              <label for="adapter.checkpoints.storage.class">Checkpoint Storage Class</label>
+              <input type="text"
+                     class="form-control"
+                     id="adapter.checkpoints.storage.class"
+                     name="adapter.checkpoints.storage.class"
+                     aria-describedby="adapter.checkpoints.storage.class.Help"
+                     placeholder="Enter Checkpoints Storage Class"
+                     [(ngModel)]="data.adapter.checkpoints.storage.class"/>
+              <small id="adapter.checkpoints.storage.class.Help"
+                     class="form-text text-muted">Specify the checkpointing scheme class for the adapter to use. Default ()</small>
+            </div>
+
+            <div class="form-group">
+              <label for="pipeline.type">Source Type</label>
+
+              <select class="form-control"
+                      id="pipeline.type"
+                      name="pipeline.type"
+                      aria-describedby="pipeline.type.Help"
+                      [(ngModel)]="selectedtype"
+                      (change)="onChange($event.target.value)">
+
+                      <option value="" disabled>-- Select Source Type --</option>
+                      <option *ngFor="let source of sources" [value]="source">{{source}}</option>
+              </select>
+              <small id="pipeline.type.Help"
+                     class="form-text text-muted">Select the source type.</small>
+
+            </div>
+
+
+            <div class="form-group">
+              <label for="pipeline.type">Source Name</label>
+
+              <select
+                class="form-control"
+                id="sourcesmock"
+                name="sourcesmock"
+                aria-describedby="sourcesmock.Help"
+                [(ngModel)]="selectedsource">
+                <!--(ngModelChange)="onChange($event)">-->
+                <option value="" disabled>-- Select Source Name --</option>
+                <option *ngFor="let source of sourcesmock | sourceFilter: 'type' : selectedtype" value={{source.name}}>{{source.name}}</option>
+              </select>
+              <small id="sourcesmock.Help"
+                     class="form-text text-muted">Select the source to ingest from.</small>
+            </div>
+
+            <div class="form-group">
+              selectedtype: {{selectedtype | json}}
+              <br/>
+              selectedsource: {{selectedsource | json}}
+            </div>
+
+          </form>
+        </wizard-step>
+
+
+
+
+        <wizard-step [title]="'2 - Ingest'" [showNext]="step2.showNext" [showPrev]="step2.showPrev" (onNext)="onStep2Next($event)">
+          <h4>Ingest</h4>
+          <p class="lead">Select an reader for data source.</p>
+          <form>
+            <div class="form-group">
+              <label for="reader">Reader Type</label>
+
+              <select class="form-control"
+                      id="reader"
+                      name="reader"
+                      aria-describedby="reader.Help">
+                <option *ngFor="let read of reader" value={{read}}>{{read}}</option>
+              </select>
+              <small id="reader.Help"
+                     class="form-text text-muted">Select the reader</small>
+            </div>
+
+
+<!--
+            <div class="form-check">
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input" name="showNext" [(ngModel)]="step2.showNext"/>
+                Show Next button
+              </label>
+            </div>
+            <div class="form-check">
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input" name="showPrev" [(ngModel)]="step2.showPrev"/>
+                Show Previous button
+              </label>
+            </div>
+-->
+
+          </form>
+        </wizard-step>
+
+
+        <wizard-step [title]="'3 - Prepare'" (onNext)="onStep3Next($event)">
+          <h4>Prepare</h4>
+          <p class="lead">Identify data format, cleanse, enrich, annotate and schematise.</p>
+          <form>
+            <div class="form-group">
+              <label for="reader">Transformer Type</label>
+
+              <select class="form-control"
+                      id="transformer"
+                      name="transformer"
+                      aria-describedby="transformer.Help">
+                <option *ngFor="let transform of transformer" value={{transform}}>{{transform}}</option>
+              </select>
+              <small id="transformer.Help"
+                     class="form-text text-muted">Select the transformer</small>
+            </div>
+
+
+
+<!--            <div class="form-check">
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input" name="secret" [(ngModel)]="step3.showSecret"/>
+                I want to know the secret
+              </label>
+            </div>-->
+          </form>
+        </wizard-step>
+        <wizard-step [title]="'Step3.5'" [hidden]="!step3.showSecret">
+          <h4>Step3.5</h4>
+          <p class="lead">This is a secret place only special people can see this!!</p>
+        </wizard-step>
+        <wizard-step [title]="'4 - Store'" (onComplete)="onComplete($event)">
+          <div [ngSwitch]="isCompleted">
+            <div *ngSwitchDefault>
+              <h4>Store</h4>
+              <p class="lead">Select the destination sink type to retain for present and future analysis</p>
+
+              <form>
+              <div class="form-group">
+                <label for="reader">Transformer Type</label>
+
+                <select class="form-control"
+                        id="sink"
+                        name="sink"
+                        aria-describedby="sink.Help">
+                  <option *ngFor="let sink of sinks" value={{sink}}>{{sink}}</option>
+                </select>
+                <small id="sink.Help"
+                       class="form-text text-muted">Select the sink</small>
+              </div>
+              </form>
+            </div>
+
+            <div *ngSwitchCase="true">
+              <h4>Thank you {{data.email}}! You have completed all the steps.</h4>
+            </div>
+          </div>
+        </wizard-step>
+      </form-wizard>
+    </div>
+  </div>
+
+
+
+</section>
+
+</div>
+

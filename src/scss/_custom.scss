@@ -1,0 +1,46 @@
+// Here you can add other styles
+.navbar-brand-text {
+  display: inline-block;
+  padding: $navbar-padding-y $navbar-padding-x;
+  @include borders($navbar-brand-border);
+}
+
+.view {
+    background: url("../img/background.png")no-repeat left top fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+.jumbohead {
+    position: absolute;
+    top:20%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    padding: 2rem 1rem;
+    margin: 2rem;
+    background-color: transparent;
+    opacity: 0.75;
+    color: $black;
+    font-weight: 600;
+}
+
+.jumbocard {
+    position: absolute;
+    top:40%;
+    left:30%;
+}
+
+.jumbobutton {
+    transform: translate(-50%,-50%);
+    height: 100px;
+    width: 300px;
+    margin: 20px;
+    padding-top: 30px;
+    background-color: $orange-800;
+    opacity: 0.75;
+    color: $white;
+    font-weight: 600;
+  text-align: center;
+}

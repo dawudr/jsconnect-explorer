@@ -1,4 +1,27 @@
-# JsconnetExplorer
+# JSConnect Explorer
+
+## Running the program
+To run the application:
+```
+mvn spring-boot:run
+```
+
+```
+cd web
+npm install
+npm start
+```
+
+And browse to:
+![http://localhost:4200/](http://localhost:4200/)
+This will load up the application page.
+
+
+## Screenshots
+![Alt text](doc/JSConnect-self_service_navigation.png?raw=true "Main Navigation")
+
+![Alt text](doc/doc/JSConnect-self_service_live_status.png?raw=true "Dashboard")
+
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.5.0.
 

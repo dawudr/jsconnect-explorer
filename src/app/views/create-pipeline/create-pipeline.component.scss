@@ -1,0 +1,13 @@
+form-wizard > .nav-item .active .enabled {
+    font-weight: bold; color: black; border-bottom-color: #e85300 !important;
+}
+
+li  .enabled {
+   cursor: pointer; border-bottom-color: #f90;
+}
+
+
+body > app-dashboard > div > main > div > app-create-pipeline > div > section > div > div > form-wizard > div > div.card-header > ul > li.nav-item.active.enabled {
+    font-weight: bold; color: black; border-bottom-color: #e85300 !important;
+
+}
