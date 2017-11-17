@@ -1,22 +1,8 @@
-import {Component} from '@angular/core';
-
-import { AngularFireDatabase } from 'angularfire2/database';
-import { Observable } from 'rxjs/Observable';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  // tslint:disable-next-line
+  selector: 'body',
+  template: '<router-outlet></router-outlet>'
 })
-export class AppComponent {
-  title = 'JSConnect Explorer';
-  description = 'JSConnect Web console';
-
-//  constructor() {}
-
-//  items: Observable<any[]>;
-//  constructor(db: AngularFireDatabase) {
-//    this.items = db.list('/pipelines').valueChanges();
-//  }
-
-}
+export class AppComponent { }
