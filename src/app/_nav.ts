@@ -15,7 +15,7 @@ export const navigation = [
   },
   {
     name: 'Manage pipelines',
-    url: '/create-pipeline',
+    url: '/manage-pipelines',
     icon: 'icon-equalizer',
   },
   {

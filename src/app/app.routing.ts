@@ -29,6 +29,10 @@ export const routes: Routes = [
         loadChildren: './views/create-pipeline/create-pipeline.module#CreatePipelineModule'
       },
       {
+        path: 'manage-pipelines',
+        loadChildren: './views/manage-pipelines/manage-pipelines.module#ManagePipelinesModule'
+      },
+      {
         path: 'navigation',
         loadChildren: './views/navigation/navigation.module#NavigationModule'
       }

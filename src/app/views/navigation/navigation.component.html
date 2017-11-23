@@ -1,13 +1,13 @@
-<div class="animated fadeIn">
+  <div class="animated fadeIn">
 
   <h1 class="jumbohead center display-4">What would you like to do?</h1>
 
 
   <div class="jumbocard container">
     <div class="row">
-        <a class="btn btn-primary btn-lg jumbobutton" href="#" role="button"  [routerLink]="['/create-pipeline']"><i class="icon-puzzle"></i> Setup a pipeline</a>
-        <a class="btn btn-primary btn-lg jumbobutton" href="#" role="button"><i class="icon-graph"></i> View active pipelines</a>
-        <a class="btn btn-primary btn-lg jumbobutton" href="#" role="button"><i class="icon-equalizer"></i> Manage pipelines</a>
+        <a class="btn btn-primary btn-lg jumbobutton" href="#" role="button" [routerLink]="['/create-pipeline']"><i class="icon-puzzle"></i> Setup a pipeline</a>
+        <a class="btn btn-primary btn-lg jumbobutton" href="#" role="button" [routerLink]="['/dashboard']"><i class="icon-graph"></i> View active pipelines</a>
+        <a class="btn btn-primary btn-lg jumbobutton" href="#" role="button" [routerLink]="['/manage-pipelines']"><i class="icon-equalizer"></i> Manage pipelines</a>
     </div>
     <div class="row">
         <a class="btn btn-primary btn-lg jumbobutton" href="#" role="button"><i class="icon-login"></i> Add data source</a>

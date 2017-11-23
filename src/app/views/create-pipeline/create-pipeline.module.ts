@@ -6,6 +6,7 @@ import { FormWizardModule } from 'angular2-wizard';
 import { CreatePipelineComponent } from './create-pipeline.component';
 import { CreatePipelineRoutingModule } from './create-pipeline-routing.module';
 import { SourceFilterPipe } from './source-filter.pipe';
+import { PipelineService } from '../../services/pipeline.service';
 
 @NgModule({
   imports: [
@@ -14,6 +15,7 @@ import { SourceFilterPipe } from './source-filter.pipe';
     FormsModule,
     FormWizardModule
   ],
+  providers: [ PipelineService ],
   declarations: [ CreatePipelineComponent, SourceFilterPipe ]
 })
 export class CreatePipelineModule { }

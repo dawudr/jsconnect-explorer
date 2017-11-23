@@ -1,0 +1,53 @@
+
+<!--<app-hero-detail [pipeline]="selectedPipeline"></app-hero-detail>-->
+
+
+
+<div class="card">
+  <div class="card-header">
+    <i class="fa fa-align-justify"></i> Adapters Listing
+  </div>
+  <div class="card-body">
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <!--<th><input type="number" name="id" [(ngModel)]="filter.id" min="1" [attr.max]="[numberOfPipelines]" step="1" placeholder="No"></th>-->
+        <!--<th><input type="text" name="name" [(ngModel)]="filter.name" placeholder="Name"></th>-->
+        <!--<th><input type="text" name="domain" [(ngModel)]="filter.domain" placeholder="Domain"></th>-->
+        <!--<th><input type="text" name="status" [(ngModel)]="filter.status" placeholder="Status"></th>-->
+        <th>Pipeline No</th>
+        <th>Pipeline Name</th>
+        <th>Domain</th>
+        <th>Status</th>
+      </tr>
+      </thead>
+      <tbody>
+
+      <tr *ngFor="let pipeline of pipelines"
+          [class.selected]="pipeline === selectedPipeline"
+          (click)="onSelect(Pipeline)">
+        <td>{{pipeline.id}}</td>
+        <td>{{pipeline.name}}</td>
+        <td>{{pipeline.domain}}</td>
+        <td [ngSwitch]="pipeline.status">
+          <span class="badge badge-success" *ngSwitchCase="'active'">Active</span>
+          <span class="badge badge-secondary" *ngSwitchCase="'stopped'">Stopped</span>
+          <span class="badge badge-danger" *ngSwitchCase="'error'">Error</span>
+          <span class="badge badge-warning" *ngSwitchCase="'inactive'">In-active</span>
+        </td>
+      </tr>
+
+      </tbody>
+    </table>
+    <ul class="pagination">
+      <li class="page-item"><a class="page-link" href="#">Prev</a></li>
+      <li class="page-item active">
+        <a class="page-link" href="#">1</a>
+      </li>
+      <li class="page-item"><a class="page-link" href="#">2</a></li>
+      <li class="page-item"><a class="page-link" href="#">3</a></li>
+      <li class="page-item"><a class="page-link" href="#">4</a></li>
+      <li class="page-item"><a class="page-link" href="#">Next</a></li>
+    </ul>
+  </div>
+</div>
