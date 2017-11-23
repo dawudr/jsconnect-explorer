@@ -20,6 +20,8 @@ This will load up the application page.
 ## Screenshots
 ![Alt text](doc/JSConnect-self_service_navigation.png?raw=true "Main Navigation")
 
+![Alt text](doc/JSConnect-self_service_manage-pipelines.png?raw=true "Manage Pipelines")
+
 ![Alt text](doc/JSConnect-self_service_live_status.png?raw=true "Dashboard")
 
 
