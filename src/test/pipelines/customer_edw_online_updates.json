@@ -1,0 +1,201 @@
+{
+  "adapter" : {
+    "checkpoints" : {
+      "enabled" : true,
+      "storage" : {
+        "class" : "com.sainsburys.connect.api.storage.CheckpointStorageKafka",
+        "consumer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        },
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "error" : {
+      "handler" : {
+        "class" : "com.sainsburys.connect.api.errors.MalformedDataHandlerKafka",
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "pipelineId" : "edw-online-updates",
+    "repeat" : {
+      "interval" : "1 minute"
+    }
+  },
+  "file" : "conf/customer_edw_online_updates.dev2.conf",
+  "pipeline" : [
+    {
+      "deleteOnCommit" : true,
+      "fileNameRegex" : ".*(\\.dat)",
+      "host" : "dev2-sftp",
+      "keyfile" : "~/.ssh/dpp3.pem",
+      "path" : "/upload/customer_edw_online_updates",
+      "port" : 22,
+      "type" : "SFTPDirSource",
+      "user" : "bdsdeveloper"
+    },
+    {
+      "type" : "TextFileTransform"
+    },
+    {
+      "schema" : {
+        "resource" : "/edw-schema-online-updates.txt"
+      },
+      "type" : "FixedSchemaDecoder"
+    },
+    {
+      "desensitise" : {
+        "piits" : {
+          "jksFilePath" : "/opt/cloudera/security/jks/dev2-trust.jks",
+          "jksPassword" : "change-me",
+          "kmsEndPoint" : "https://dev2-cm-kms1:16000/kms/v1",
+          "krbFilePath" : "/etc/krb5.conf",
+          "masterKeyEDEKMappingTable" : "encryptedKeyLookup",
+          "piitsTableNamespace" : "default",
+          "tokenLookupTableNamePrefix" : "tokenLookup",
+          "tokenTableNamePrefix" : "token",
+          "zookeeperQuorum" : "dev2-cm-controlnode1,dev2-cm-controlnode2,dev2-cm-controlnode3"
+        },
+        "strategies" : {
+          "cls_address_line_1" : "flag",
+          "cls_address_line_2" : "flag",
+          "cls_address_line_3" : "flag",
+          "cls_applicant_dob" : "dateOfBirth",
+          "cls_applicant_dob_datestamp" : "dateOfBirth",
+          "cls_child_1_date_of_birth" : "dateOfBirth",
+          "cls_child_2_date_of_birth" : "dateOfBirth",
+          "cls_child_3_date_of_birth" : "dateOfBirth",
+          "cls_child_4_date_of_birth" : "dateOfBirth",
+          "cls_child_5_date_of_birth" : "dateOfBirth",
+          "cls_child_dob_dstamp" : "dateOfBirth",
+          "cls_email_address" : "flag",
+          "cls_first_name" : "flag",
+          "cls_flat_name" : "flag",
+          "cls_house_name" : "flag",
+          "cls_postal_code" : "postcodeTrim",
+          "cls_surname" : "flag",
+          "cls_telephone_number" : "flag",
+          "indvl_date_birth" : "dateOfBirth",
+          "indvl_fname" : "flag",
+          "indvl_sname" : "flag",
+          "loc_build_number" : "flag",
+          "loc_building_name" : "flag",
+          "loc_county" : "flag",
+          "loc_dependent_locality" : "flag",
+          "loc_dependent_street_desc" : "flag",
+          "loc_dependent_street_name" : "flag",
+          "loc_double_dependent_locality" : "flag",
+          "loc_postcode" : "postcodeTrim",
+          "loc_street_description" : "flag",
+          "loc_street_name" : "flag",
+          "loc_sub_building_name" : "flag",
+          "loc_town" : "flag",
+          "paf_building_name" : "flag",
+          "paf_building_number" : "flag",
+          "paf_county" : "flag",
+          "paf_dependent_locality" : "flag",
+          "paf_double_dependent_locality" : "flag",
+          "paf_postcode" : "postcodeTrim",
+          "paf_sub_building_name" : "flag",
+          "paf_town" : "flag",
+          "sty_county" : "flag",
+          "sty_dob" : "dateOfBirth",
+          "sty_email" : "flag",
+          "sty_fname" : "flag",
+          "sty_home_tel" : "flag",
+          "sty_house_name" : "flag",
+          "sty_house_number" : "flag",
+          "sty_postcode" : "postcodeTrim",
+          "sty_road_name" : "flag",
+          "sty_sname" : "flag",
+          "sty_town" : "flag",
+          "sty_userid" : "flag",
+          "sty_work_tel" : "flag"
+        }
+      },
+      "maxParallelism" : 100,
+      "type" : "DesensitiserTransform"
+    },
+    {
+      "schema" : {
+        "resource" : "/edw-schema-online-updates.txt"
+      },
+      "type" : "FixedSchemaEncoder"
+    },
+    {
+      "s3BucketName" : "xx-dpp-dev-data-customer-uvc-online-app",
+      "s3Prefix" : "delta/",
+      "security" : {
+        "aws" : {}
+      },
+      "type" : "S3BucketSink"
+    }
+  ]
+}

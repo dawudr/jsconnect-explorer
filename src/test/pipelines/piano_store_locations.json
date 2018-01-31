@@ -1,0 +1,136 @@
+{
+  "adapter" : {
+    "checkpoints" : {
+      "enabled" : true,
+      "storage" : {
+        "class" : "com.sainsburys.connect.api.storage.CheckpointStorageKafka",
+        "consumer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        },
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            },
+            "request" : {
+              "size" : 104857600
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "committer" : {
+      "interval" : "5 minutes"
+    },
+    "error" : {
+      "handler" : {
+        "class" : "com.sainsburys.connect.api.errors.MalformedDataHandlerKafka",
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            },
+            "request" : {
+              "size" : 104857600
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "pipelineId" : "piano-store-locations",
+    "repeat" : {
+      "interval" : "5 minutes"
+    }
+  },
+  "file" : "conf/piano_store_locations.prd2.conf",
+  "pipeline" : [
+    {
+      "deleteOnCommit" : true,
+      "s3BucketName" : "xx-dpp2-prd-data-piano-storelocation",
+      "s3FilterRegex" : ".*hive-staging_hive.*",
+      "s3FilterRegexInclude" : false,
+      "s3Prefix" : "",
+      "security" : {
+        "aws" : {}
+      },
+      "type" : "S3Source"
+    },
+    {
+      "output" : {
+        "buffer" : {
+          "size" : 10485760
+        },
+        "file" : {
+          "fullpath" : true,
+          "rename" : [
+            "$",
+            ".csv"
+          ],
+          "size" : {
+            "hint" : 104857600
+          }
+        }
+      },
+      "s3BucketName" : "piano-prod-7e939f93-store-locations",
+      "s3Prefix" : "unprocessed/store_locations_",
+      "s3ProfileName" : "piano-prod-7e939f93-store-locations",
+      "type" : "S3BucketSink"
+    }
+  ]
+}

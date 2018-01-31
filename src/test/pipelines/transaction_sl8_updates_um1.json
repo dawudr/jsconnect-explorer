@@ -1,0 +1,214 @@
+{
+  "adapter" : {
+    "checkpoints" : {
+      "enabled" : false,
+      "storage" : {
+        "class" : "com.sainsburys.connect.api.storage.CheckpointStorageKafka",
+        "consumer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        },
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            },
+            "request" : {
+              "size" : 104857600
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "error" : {
+      "handler" : {
+        "class" : "com.sainsburys.connect.api.errors.MalformedDataHandlerKafka",
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            },
+            "request" : {
+              "size" : 104857600
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "pipelineId" : "transaction-sl8-updates-um1"
+  },
+  "file" : "conf/transaction_sl8_updates_um1.prd2.conf",
+  "pipeline" : [
+    {
+      "factoryLookupName" : "SL8ESB_DPP_CF",
+      "initialContextFactory" : "com.pcbsys.nirvana.nSpace.NirvanaContextFactory",
+      "max" : {
+        "unacknowledged" : 100
+      },
+      "providerUrl" : "nsp://dsproxy1.mgt.xx-data-platform.io:16010",
+      "type" : "JmsSource"
+    },
+    {
+      "type" : "InputStreamDecoder"
+    },
+    {
+      "type" : "GzipDecoder"
+    },
+    {
+      "type" : "InputStreamEncoder"
+    },
+    {
+      "maxParallelism" : 4,
+      "type" : "XmlDecoder"
+    },
+    {
+      "requiredNodes" : [
+        "/Basket"
+      ],
+      "type" : "XmlFilterTransform"
+    },
+    {
+      "copyMappings" : [
+        {
+          "copies" : [
+            "DPPNectarAccountNumber",
+            "DPPCustomerID"
+          ],
+          "source" : "/Baskets/Basket/Loyalties/Loyalty/AccountNo"
+        }
+      ],
+      "maxParallelism" : 1,
+      "type" : "XmlFieldCopyTransform"
+    },
+    {
+      "desensitise" : {
+        "locators" : {
+          "AccountNo" : "/Baskets/Basket/Loyalties/Loyalty/AccountNo",
+          "CreditCardAuthCode" : "/Baskets/Basket/Tenders/Tender/CreditCard/OlaAuthCode",
+          "CreditCardExipiryDate" : "/Baskets/Basket/Tenders/Tender/CreditCard/ExpiryDate",
+          "CreditCardMerchantNo" : "/Baskets/Basket/Tenders/Tender/CreditCard/MerchantNumber",
+          "CreditCardNo" : "/Baskets/Basket/Tenders/Tender/CreditCard/AccountNo",
+          "CreditCardStartDate" : "/Baskets/Basket/Tenders/Tender/CreditCard/StartDate",
+          "CustomerId" : "/Baskets/Basket/Loyalties/Loyalty/DPPCustomerID",
+          "NectarNo" : "/Baskets/Basket/Loyalties/Loyalty/DPPNectarAccountNumber",
+          "StaffDiscountNo" : "/Baskets/Basket/Tenders/Tender/StaffDiscount/AccountNo"
+        },
+        "piits" : {
+          "jksFilePath" : "/opt/cloudera/security/jks/prd2-trust.jks",
+          "jksPassword" : "change-me",
+          "kmsEndPoint" : "https://prd2-cm-kms1.node.prd2.consul:16000/kms/v1",
+          "krbFilePath" : "/etc/krb5.conf",
+          "masterKeyEDEKMappingTable" : "encryptedKeyLookup",
+          "piitsTableNamespace" : "piits",
+          "tokenLookupTableNamePrefix" : "tokenLookup",
+          "tokenTableNamePrefix" : "token",
+          "zookeeperQuorum" : "prd2-cm-controlnode1.node.prd2.consul,prd2-cm-controlnode2.node.prd2.consul,prd2-cm-controlnode3.node.prd2.consul"
+        },
+        "strategies" : {
+          "AccountNo" : "piits:NectarCardId",
+          "CreditCardAuthCode" : "flag",
+          "CreditCardExipiryDate" : "flag",
+          "CreditCardMerchantNo" : "piits:SourceRegistrationId",
+          "CreditCardNo" : "piits:SourceRegistrationId",
+          "CreditCardStartDate" : "flag",
+          "CustomerId" : "piits:NectarCardId:8",
+          "NectarNo" : "piits:SourceRegistrationId:8:16",
+          "StaffDiscountNo" : "piits:SourceRegistrationId"
+        }
+      },
+      "maxParallelism" : 100,
+      "type" : "XmlDesensitiserTransform"
+    },
+    {
+      "type" : "XmlEncoder"
+    },
+    {
+      "producer" : {
+        "bootstrap" : {
+          "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+        },
+        "max" : {
+          "block" : {
+            "ms" : 5000
+          },
+          "request" : {
+            "size" : 104857600
+          }
+        },
+        "sasl" : {
+          "kerberos" : {
+            "service" : {
+              "name" : "kafka"
+            }
+          }
+        },
+        "security" : {
+          "protocol" : "SASL_SSL"
+        },
+        "ssl" : {
+          "truststore" : {
+            "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+            "password" : "change-me"
+          }
+        }
+      },
+      "topic" : "transaction_sl8_updates",
+      "type" : "KafkaSink"
+    }
+  ]
+}

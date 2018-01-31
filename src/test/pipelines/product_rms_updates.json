@@ -1,0 +1,156 @@
+{
+  "adapter" : {
+    "checkpoints" : {
+      "enabled" : true,
+      "storage" : {
+        "class" : "com.sainsburys.connect.api.storage.CheckpointStorageKafka",
+        "consumer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        },
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "error" : {
+      "handler" : {
+        "class" : "com.sainsburys.connect.api.errors.MalformedDataHandlerKafka",
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "pipelineId" : "product-rms-updates"
+  },
+  "file" : "conf/product_rms_updates.dev2.conf",
+  "pipeline" : [
+    {
+      "client" : {
+        "id" : "dev2-product-rms"
+      },
+      "factoryLookupName" : "ConnectionFactory",
+      "initialContextFactory" : "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
+      "providerUrl" : "tcp://dev2-sandbox1:61616",
+      "topic" : {
+        "durable" : true,
+        "name" : "Product_5_XML",
+        "subscription" : "dpp"
+      },
+      "type" : "JmsSource"
+    },
+    {
+      "maxParallelism" : 4,
+      "type" : "XmlDecoder"
+    },
+    {
+      "desensitise" : {
+        "locators" : {
+          "UpdatedBy" : "/product_data/product/physical_product_details/clothing_details/updated_by"
+        },
+        "strategies" : {
+          "UpdatedBy" : "flag"
+        }
+      },
+      "maxParallelism" : 30,
+      "type" : "XmlDesensitiserTransform"
+    },
+    {
+      "maxParallelism" : 4,
+      "type" : "XmlEncoder"
+    },
+    {
+      "producer" : {
+        "bootstrap" : {
+          "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+        },
+        "max" : {
+          "block" : {
+            "ms" : 5000
+          }
+        },
+        "sasl" : {
+          "kerberos" : {
+            "service" : {
+              "name" : "kafka"
+            }
+          }
+        },
+        "security" : {
+          "protocol" : "SASL_SSL"
+        },
+        "ssl" : {
+          "truststore" : {
+            "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+            "password" : "change-me"
+          }
+        }
+      },
+      "topic" : "product_rms_updates",
+      "type" : "KafkaSink"
+    }
+  ]
+}

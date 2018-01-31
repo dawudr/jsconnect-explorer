@@ -1,0 +1,169 @@
+{
+  "adapter" : {
+    "checkpoints" : {
+      "enabled" : true,
+      "storage" : {
+        "class" : "com.sainsburys.connect.api.storage.CheckpointStorageKafka",
+        "consumer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        },
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            },
+            "request" : {
+              "size" : 104857600
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "error" : {
+      "handler" : {
+        "class" : "com.sainsburys.connect.api.errors.MalformedDataHandlerKafka",
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            },
+            "request" : {
+              "size" : 104857600
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "pipelineId" : "nectar-balance-updates",
+    "repeat" : {
+      "interval" : "5 minutes"
+    }
+  },
+  "file" : "conf/nectar_balance_updates.prd2.conf",
+  "pipeline" : [
+    {
+      "fileNameRegex" : ".*\\.dat",
+      "host" : "dsproxy.mgt.xx-data-platform.io",
+      "keyfile" : "~/.ssh/b2bgw",
+      "path" : "/xfer/IN/ALAN/AIMIA/IN",
+      "port" : 2223,
+      "type" : "SFTPDirSource",
+      "user" : "aws300"
+    },
+    {
+      "header" : true,
+      "type" : "TextFileTransform"
+    },
+    {
+      "regex" : "^A.*",
+      "type" : "TextLineFilter"
+    },
+    {
+      "schema" : {
+        "resource" : "\n      record\n            string(9) nectar_account_no\n            string(9) nectar_points\n            string(4) home_store_id\n            string(1) home_store_indicator\n            string(1) ignore // H\n            string(8) update_time\n            string(74) newline = \"\\n\";\n      end;\n      "
+      },
+      "type" : "FixedSchemaDecoder"
+    },
+    {
+      "desensitise" : {
+        "piits" : {
+          "jksFilePath" : "/opt/cloudera/security/jks/prd2-trust.jks",
+          "jksPassword" : "change-me",
+          "kmsEndPoint" : "https://prd2-cm-kms1.node.prd2.consul:16000/kms/v1",
+          "krbFilePath" : "/etc/krb5.conf",
+          "masterKeyEDEKMappingTable" : "encryptedKeyLookup",
+          "piitsTableNamespace" : "piits",
+          "tokenLookupTableNamePrefix" : "tokenLookup",
+          "tokenTableNamePrefix" : "token",
+          "zookeeperQuorum" : "prd2-cm-controlnode1.node.prd2.consul,prd2-cm-controlnode2.node.prd2.consul,prd2-cm-controlnode3.node.prd2.consul"
+        },
+        "strategies" : {
+          "nectar_account_no" : "piits:SourceRegistrationId"
+        }
+      },
+      "maxParallelism" : 100,
+      "type" : "DesensitiserTransform"
+    },
+    {
+      "schema" : [
+        "nectar_account_no",
+        "nectar_points",
+        "home_store_id",
+        "home_store_indicator"
+      ],
+      "type" : "CsvEncoder"
+    },
+    {
+      "output" : {
+        "file" : {
+          "rename" : [
+            "\\.dat",
+            ".csv"
+          ]
+        }
+      },
+      "s3BucketName" : "xx-dpp2-prd-data-nectar-balance-app",
+      "s3Prefix" : "updates/",
+      "security" : {
+        "aws" : {}
+      },
+      "type" : "S3BucketSink"
+    }
+  ]
+}

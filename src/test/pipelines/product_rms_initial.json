@@ -1,0 +1,156 @@
+{
+  "adapter" : {
+    "checkpoints" : {
+      "enabled" : true,
+      "storage" : {
+        "class" : "com.sainsburys.connect.api.storage.CheckpointStorageKafka",
+        "consumer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        },
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            },
+            "request" : {
+              "size" : 104857600
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "error" : {
+      "handler" : {
+        "class" : "com.sainsburys.connect.api.errors.MalformedDataHandlerKafka",
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            },
+            "request" : {
+              "size" : 104857600
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "pipelineId" : "product-rms-initial",
+    "repeat" : {
+      "interval" : "5 minutes"
+    }
+  },
+  "file" : "conf/product_rms_initial.prd2.conf",
+  "pipeline" : [
+    {
+      "fileNameRegex" : ".*\\.gz$",
+      "host" : "dsproxy.mgt.xx-data-platform.io",
+      "keyfile" : "~/.ssh/b2bgw",
+      "path" : "/xfer/IN/ALAN/PRODUCT",
+      "port" : 2223,
+      "type" : "SFTPDirSource",
+      "user" : "aws300"
+    },
+    {
+      "type" : "GzipDecoder"
+    },
+    {
+      "type" : "InputStreamEncoder"
+    },
+    {
+      "maxParallelism" : 2,
+      "type" : "XmlDecoder"
+    },
+    {
+      "desensitise" : {
+        "locators" : {
+          "UpdatedBy" : "/product_data/product/physical_product_details/clothing_details/updated_by"
+        },
+        "strategies" : {
+          "UpdatedBy" : "flag"
+        }
+      },
+      "maxParallelism" : 100,
+      "type" : "XmlDesensitiserTransform"
+    },
+    {
+      "type" : "XmlEncoder"
+    },
+    {
+      "output" : {
+        "file" : {
+          "format" : {
+            "lines" : true
+          },
+          "rename" : [
+            "\\.dat\\.gz",
+            ".xml"
+          ]
+        }
+      },
+      "s3BucketName" : "xx-dpp2-prd-data-product-rms",
+      "s3Prefix" : "initial/",
+      "security" : {
+        "aws" : {
+          "s3" : {}
+        }
+      },
+      "type" : "S3BucketSink"
+    }
+  ]
+}

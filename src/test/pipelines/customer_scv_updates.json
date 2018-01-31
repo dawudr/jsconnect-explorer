@@ -1,0 +1,225 @@
+{
+  "adapter" : {
+    "checkpoints" : {
+      "enabled" : true,
+      "storage" : {
+        "class" : "com.sainsburys.connect.api.storage.CheckpointStorageKafka",
+        "consumer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        },
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            },
+            "request" : {
+              "size" : 104857600
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "error" : {
+      "handler" : {
+        "class" : "com.sainsburys.connect.api.errors.MalformedDataHandlerKafka",
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            },
+            "request" : {
+              "size" : 104857600
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "pipelineId" : "customer-scv-updates"
+  },
+  "file" : "conf/customer_scv_updates.prd2.conf",
+  "pipeline" : [
+    {
+      "factoryLookupName" : "DPP_CustomerProfile_NSPS_CF",
+      "initialContextFactory" : "com.pcbsys.nirvana.nSpace.NirvanaContextFactory",
+      "providerUrl" : "nsps://dsproxy1.mgt.xx-data-platform.io:15005;nsps://dsproxy2.mgt.xx-data-platform.io:15005;nsps://dsproxy3.mgt.xx-data-platform.io:15005",
+      "type" : "JmsSource"
+    },
+    {
+      "type" : "InputStreamDecoder"
+    },
+    {
+      "maxParallelism" : 20,
+      "type" : "JsonDecoder"
+    },
+    {
+      "desensitise" : {
+        "locators" : {
+          "account_number" : "$.enterprise_customer.customer_accounts[*].account_number",
+          "account_type_name" : "$.enterprise_customer.customer_accounts[*].account_type_name",
+          "address_type_name" : "$.enterprise_customer.customer_addresses[*].address_type_name",
+          "baby_mps_registered" : "$.enterprise_customer.baby_mps_registered",
+          "bad_address" : "$.enterprise_customer.customer_addresses[*].bad_address",
+          "card_number" : "$.enterprise_customer.loyalty_cards[*].card_number",
+          "city" : "$.enterprise_customer.customer_addresses[*].city",
+          "country" : "$.enterprise_customer.customer_addresses[*].country",
+          "county" : "$.enterprise_customer.customer_addresses[*].county",
+          "date_of_birth" : "$.enterprise_customer.date_of_birth",
+          "email_address" : "$.enterprise_customer.customer_emails[*].email_address",
+          "email_type_name" : "$.enterprise_customer.customer_emails[*].email_type_name",
+          "firstname" : "$.enterprise_customer.firstname",
+          "is_preferred_address" : "$.enterprise_customer.customer_addresses[*].is_preferred_address",
+          "lastname" : "$.enterprise_customer.lastname",
+          "line1" : "$.enterprise_customer.customer_addresses[*].line1",
+          "line2" : "$.enterprise_customer.customer_addresses[*].line2",
+          "line3" : "$.enterprise_customer.customer_addresses[*].line3",
+          "loyalty_account_number" : "$.enterprise_customer.loyalty_cards[*].loyalty_account_number",
+          "loyalty_customer_id" : "$.enterprise_customer.loyalty_cards[*].loyalty_customer_id",
+          "mps_registered" : "$.enterprise_customer.mps_registered",
+          "name_on_card" : "$.enterprise_customer.loyalty_cards[*].name_on_card",
+          "number_of_children" : "$.enterprise_customer.number_of_children",
+          "paf_key" : "$.enterprise_customer.customer_addresses[*].paf_key",
+          "phone_number" : "$.enterprise_customer.customer_phones[*].phone_number",
+          "phone_type_name" : "$.enterprise_customer.customer_phones[*].phone_type_name",
+          "residence_number" : "$.enterprise_customer.customer_addresses[*].residence_number",
+          "title" : "$.enterprise_customer.title"
+        },
+        "piits" : {
+          "jksFilePath" : "/opt/cloudera/security/jks/prd2-trust.jks",
+          "jksPassword" : "change-me",
+          "kmsEndPoint" : "https://prd2-cm-kms1.node.prd2.consul:16000/kms/v1",
+          "krbFilePath" : "/etc/krb5.conf",
+          "masterKeyEDEKMappingTable" : "encryptedKeyLookup",
+          "piitsTableNamespace" : "piits",
+          "tokenLookupTableNamePrefix" : "tokenLookup",
+          "tokenTableNamePrefix" : "token",
+          "zookeeperQuorum" : "prd2-cm-controlnode1.node.prd2.consul,prd2-cm-controlnode2.node.prd2.consul,prd2-cm-controlnode3.node.prd2.consul"
+        },
+        "strategies" : {
+          "account_number" : "piits:SourceRegistrationId",
+          "account_type_name" : "flag",
+          "address_type_name" : "flag",
+          "baby_mps_registered" : "flag",
+          "bad_address" : "flag",
+          "card_number" : "piits:NectarCardId",
+          "city" : "flag",
+          "country" : "flag",
+          "county" : "flag",
+          "date_of_birth" : "dateOfBirth",
+          "email_address" : "flag",
+          "email_type_name" : "flag",
+          "firstname" : "flag",
+          "is_preferred_address" : "flag",
+          "lastname" : "flag",
+          "line1" : "flag",
+          "line2" : "flag",
+          "line3" : "flag",
+          "loyalty_account_number" : "piits:NectarCardId",
+          "loyalty_customer_id" : "piits:NectarCardId",
+          "mps_registered" : "flag",
+          "name_on_card" : "flag",
+          "number_of_children" : "flag",
+          "paf_key" : "flag",
+          "phone_number" : "flag",
+          "phone_type_name" : "flag",
+          "residence_number" : "flag",
+          "title" : "flag"
+        }
+      },
+      "maxParallelism" : 128,
+      "type" : "JsonDesensitiserTransform"
+    },
+    {
+      "maxParallelism" : 1,
+      "type" : "JsonEncoder"
+    },
+    {
+      "producer" : {
+        "bootstrap" : {
+          "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+        },
+        "max" : {
+          "block" : {
+            "ms" : 5000
+          },
+          "request" : {
+            "size" : 104857600
+          }
+        },
+        "sasl" : {
+          "kerberos" : {
+            "service" : {
+              "name" : "kafka"
+            }
+          }
+        },
+        "security" : {
+          "protocol" : "SASL_SSL"
+        },
+        "ssl" : {
+          "truststore" : {
+            "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+            "password" : "change-me"
+          }
+        }
+      },
+      "topic" : "customer_scv_updates",
+      "type" : "KafkaSink"
+    }
+  ]
+}

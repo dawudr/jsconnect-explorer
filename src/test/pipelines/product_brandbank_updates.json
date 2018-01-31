@@ -1,0 +1,122 @@
+{
+  "adapter" : {
+    "checkpoints" : {
+      "enabled" : true,
+      "storage" : {
+        "class" : "com.sainsburys.connect.api.storage.CheckpointStorageKafka",
+        "consumer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        },
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "error" : {
+      "handler" : {
+        "class" : "com.sainsburys.connect.api.errors.MalformedDataHandlerKafka",
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "pipelineId" : "product-brandbank-updates",
+    "repeat" : {
+      "interval" : "1 minute"
+    }
+  },
+  "file" : "conf/product_brandbank_updates.dev2.conf",
+  "pipeline" : [
+    {
+      "fileNameRegex" : ".*bb_product_data_.+\\.(zip)$",
+      "host" : "dev2-sftp",
+      "keyfile" : "~/.ssh/dpp3.pem",
+      "path" : "/upload/PRODUCT_UPDATES/",
+      "port" : 22,
+      "type" : "SFTPDirSource",
+      "user" : "bdsdeveloper"
+    },
+    {
+      "type" : "ZipArchiveTransform"
+    },
+    {
+      "output" : {
+        "file" : {
+          "format" : {
+            "lines" : false
+          }
+        }
+      },
+      "s3BucketName" : "xx-dpp-dev-data-product",
+      "s3Prefix" : "data/staging/brandbank_delta/",
+      "security" : {
+        "aws" : {}
+      },
+      "type" : "S3BucketSink"
+    }
+  ]
+}

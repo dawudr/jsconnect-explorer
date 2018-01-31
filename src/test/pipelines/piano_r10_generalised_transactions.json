@@ -1,0 +1,182 @@
+{
+  "adapter" : {
+    "checkpoints" : {
+      "enabled" : true,
+      "storage" : {
+        "class" : "com.sainsburys.connect.api.storage.CheckpointStorageKafka",
+        "consumer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "group" : {
+            "id" : "piano-r10-generalised-transactions"
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        },
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            },
+            "request" : {
+              "size" : 104857600
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "error" : {
+      "handler" : {
+        "class" : "com.sainsburys.connect.api.errors.MalformedDataHandlerKafka",
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            },
+            "request" : {
+              "size" : 104857600
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "pipelineId" : "piano-r10-generalised-transactions"
+  },
+  "file" : "conf/piano_r10_generalised_transactions.prd2.conf",
+  "pipeline" : [
+    {
+      "consumer" : {
+        "auto" : {
+          "offset" : {
+            "reset" : "latest"
+          }
+        },
+        "bootstrap" : {
+          "servers" : "prd2-cm-kafkabroker1:9093,prd2-cm-kafkabroker2:9093,prd2-cm-kafkabroker3:9093"
+        },
+        "group" : {
+          "id" : "piano-r10-generalised-transactions"
+        },
+        "sasl" : {
+          "kerberos" : {
+            "service" : {
+              "name" : "kafka"
+            }
+          }
+        },
+        "security" : {
+          "protocol" : "SASL_SSL"
+        },
+        "ssl" : {
+          "truststore" : {
+            "location" : "/opt/cloudera/security/jks/prd2-trust.jks",
+            "password" : "change-me"
+          }
+        }
+      },
+      "poll" : {
+        "interval" : "250 milliseconds"
+      },
+      "topic" : "transaction_r10_updates",
+      "type" : "KafkaSource"
+    },
+    {
+      "maxParallelism" : 4,
+      "type" : "XmlDecoder"
+    },
+    {
+      "maxParallelism" : 100,
+      "source" : "kafka.transaction_r10_updates",
+      "type" : "R10GeneraliseTransform"
+    },
+    {
+      "detokenise" : {
+        "locators" : {
+          "nectarCard" : "$.data.loyaltyId"
+        },
+        "piits" : {
+          "jksFilePath" : "/opt/cloudera/security/jks/prd2-trust.jks",
+          "jksPassword" : "change-me",
+          "kmsEndPoint" : "https://prd2-cm-kms1.node.prd2.consul:16000/kms/v1",
+          "krbFilePath" : "/etc/krb5.conf",
+          "masterKeyEDEKMappingTable" : "encryptedKeyLookup",
+          "piitsTableNamespace" : "piits",
+          "tokenLookupTableNamePrefix" : "tokenLookup",
+          "tokenTableNamePrefix" : "token",
+          "zookeeperQuorum" : "prd2-cm-controlnode1.node.prd2.consul,prd2-cm-controlnode2.node.prd2.consul,prd2-cm-controlnode3.node.prd2.consul"
+        },
+        "strategies" : {
+          "nectarCard" : "NectarCardId"
+        }
+      },
+      "maxParallelism" : 100,
+      "type" : "JsonDetokeniserTransform"
+    },
+    {
+      "type" : "JsonEncoder"
+    },
+    {
+      "maxParallelism" : 100,
+      "queueName" : "piano-prod-b77e2c24-transaction-ingestion",
+      "security" : {
+        "aws" : {}
+      },
+      "sqsProfileName" : "piano-prod-b77e2c24-transaction-ingestion",
+      "sqsS3BucketName" : "piano-prod-b77e2c24-transaction-ingestion",
+      "type" : "SqsMessageTransform"
+    }
+  ]
+}

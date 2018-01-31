@@ -1,0 +1,134 @@
+{
+  "adapter" : {
+    "checkpoints" : {
+      "enabled" : false,
+      "storage" : {
+        "class" : "com.sainsburys.connect.api.storage.CheckpointStorageKafka",
+        "consumer" : {
+          "bootstrap" : {
+            "servers" : "prd-cm-kafkabroker1:9093,prd-cm-kafkabroker2:9093,prd-cm-kafkabroker3:9093"
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        },
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "prd-cm-kafkabroker1:9093,prd-cm-kafkabroker2:9093,prd-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            },
+            "request" : {
+              "size" : 104857600
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "error" : {
+      "handler" : {
+        "class" : "com.sainsburys.connect.api.errors.MalformedDataHandlerKafka",
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "prd-cm-kafkabroker1:9093,prd-cm-kafkabroker2:9093,prd-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            },
+            "request" : {
+              "size" : 104857600
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/prd-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "pipelineId" : "transaction-r10-reconciliation-totals"
+  },
+  "file" : "conf/transaction_r10_reconciliation_totals.prd.conf",
+  "pipeline" : [
+    {
+      "client" : {
+        "id" : "prd-transaction-r10"
+      },
+      "factoryLookupName" : "R10ESB_DPP_CF",
+      "initialContextFactory" : "com.pcbsys.nirvana.nSpace.NirvanaContextFactory",
+      "max" : {
+        "unacknowledged" : 100
+      },
+      "providerUrl" : "nsp://dsproxy1.mgt.xx-data-platform.io:16000",
+      "topic" : {
+        "durable" : true,
+        "name" : "EODAggregateTotals",
+        "subscription" : "dpp"
+      },
+      "type" : "JmsSource"
+    },
+    {
+      "maxParallelism" : 20,
+      "type" : "InputStreamDecoder"
+    },
+    {
+      "output" : {
+        "file" : {
+          "format" : {
+            "lines" : false
+          }
+        }
+      },
+      "s3BucketName" : "xx-dpp2-prd-bds-data-reconciliation-transaction",
+      "s3Prefix" : "r10/totals/",
+      "security" : {
+        "aws" : {}
+      },
+      "type" : "S3BucketSink"
+    }
+  ]
+}

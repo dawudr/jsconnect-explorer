@@ -1,0 +1,287 @@
+{
+  "adapter" : {
+    "checkpoints" : {
+      "enabled" : false,
+      "storage" : {
+        "class" : "com.sainsburys.connect.api.storage.CheckpointStorageKafka",
+        "consumer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        },
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "error" : {
+      "handler" : {
+        "class" : "com.sainsburys.connect.api.errors.MalformedDataHandlerKafka",
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "pipelineId" : "transaction-r10-updates"
+  },
+  "file" : "conf/transaction_r10_updates.dev2.conf",
+  "pipeline" : [
+    {
+      "client" : {
+        "id" : "dev2-transaction-r10"
+      },
+      "factoryLookupName" : "ConnectionFactory",
+      "initialContextFactory" : "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
+      "max" : {
+        "unacknowledged" : 100
+      },
+      "providerUrl" : "tcp://dev2-sandbox1:61616?jms.prefetchPolicy.all=500&wireFormat.maxInactivityDurationInitalDelay=30000",
+      "topic" : {
+        "durable" : true,
+        "name" : "Retail",
+        "subscription" : "dpp"
+      },
+      "type" : "JmsSource"
+    },
+    {
+      "maxParallelism" : 8,
+      "type" : "XmlDecoder"
+    },
+    {
+      "requiredNodes" : [
+        "/Transaction"
+      ],
+      "type" : "XmlFilterTransform"
+    },
+    {
+      "desensitise" : {
+        "locators" : {
+          "COT_C_AccountNumber" : "/POSLog/Transaction/CustomerOrderTransaction/Customer/AccountNumber",
+          "COT_C_CD_AccountNumber" : "/POSLog/Transaction/CustomerOrderTransaction/Customer/ColleagueDiscount/AccountNumber",
+          "COT_C_CV_AccountNumber" : "/POSLog/Transaction/CustomerOrderTransaction/Customer/CustomerVoided/AccountNumber",
+          "COT_C_CustomerExternalId" : "/POSLog/Transaction/CustomerOrderTransaction/Customer/CustomerExternalId",
+          "COT_C_CustomerID" : "/POSLog/Transaction/CustomerOrderTransaction/Customer/CustomerID",
+          "COT_C_Name" : "/POSLog/Transaction/CustomerOrderTransaction/Customer/Name/Name",
+          "COT_C_R_AccountNumber" : "/POSLog/Transaction/CustomerOrderTransaction/Customer/r10Ex:AccountNumber",
+          "COT_C_R_CustomerExternalId" : "/POSLog/Transaction/CustomerOrderTransaction/Customer/r10Ex:CustomerExternalId",
+          "COT_C_R_ScanData" : "/POSLog/Transaction/CustomerOrderTransaction/Customer/r10Ex:ScanData",
+          "COT_C_V_LicensePlateID" : "/POSLog/Transaction/CustomerOrderTransaction/Customer/Vehicle/LicensePlateID",
+          "COT_LI_OS_A_MerchantNumber" : "/POSLog/Transaction/CustomerOrderTransaction/LineItem/OnlineService/Authorization/MerchantNumber",
+          "COT_LI_OS_A_ProviderData" : "/POSLog/Transaction/CustomerOrderTransaction/LineItem/OnlineService/Authorization/ProviderData",
+          "COT_LI_OS_CardNumber" : "/POSLog/Transaction/CustomerOrderTransaction/LineItem/OnlineService/CardNumber",
+          "COT_LI_T_A_AuthorizationResponseCode" : "/POSLog/Transaction/CustomerOrderTransaction/LineItem/Tender/Authorization/AuthorizationResponseCode",
+          "COT_LI_T_A_MerchantNumber" : "/POSLog/Transaction/CustomerOrderTransaction/LineItem/Tender/Authorization/MerchantNumber",
+          "COT_LI_T_A_ProviderData" : "/POSLog/Transaction/CustomerOrderTransaction/LineItem/Tender/Authorization/ProviderData",
+          "COT_LI_T_A_R_AuthorizationResponseCode" : "/POSLog/Transaction/CustomerOrderTransaction/LineItem/Tender/Authorization/r10Ex:AuthorizationResponseCode",
+          "COT_LI_T_A_ReferenceNumber" : "/POSLog/Transaction/CustomerOrderTransaction/LineItem/Tender/Authorization/ReferenceNumber",
+          "COT_LI_T_CCD_ExpirationDate" : "/POSLog/Transaction/CustomerOrderTransaction/LineItem/Tender/CreditDebit/ExpirationDate",
+          "COT_LI_T_CCD_MaskedAccountId" : "/POSLog/Transaction/CustomerOrderTransaction/LineItem/Tender/CreditDebit/MaskedAccountId",
+          "COT_LI_T_CCD_R_MaskedAccountId" : "/POSLog/Transaction/CustomerOrderTransaction/LineItem/Tender/CreditDebit/r10Ex:MaskedAccountId",
+          "RT_C_AccountNumber" : "/POSLog/Transaction/RetailTransaction/Customer/r10Ex:AccountNumber",
+          "RT_C_CD_AccountNumber" : "/POSLog/Transaction/RetailTransaction/Customer/ColleagueDiscount/AccountNumber",
+          "RT_C_CV_AccountNumber" : "/POSLog/Transaction/RetailTransaction/Customer/CustomerVoided/AccountNumber",
+          "RT_C_CustomerExternalId" : "/POSLog/Transaction/RetailTransaction/Customer/CustomerExternalId",
+          "RT_C_CustomerID" : "/POSLog/Transaction/RetailTransaction/Customer/CustomerID",
+          "RT_C_N_Name" : "/POSLog/Transaction/RetailTransaction/Customer/Name/Name",
+          "RT_C_PrimaryAccountNumber" : "/POSLog/Transaction/RetailTransaction/Customer/PrimaryAccountNumber",
+          "RT_C_R_CustomerExternalId" : "/POSLog/Transaction/RetailTransaction/Customer/r10Ex:CustomerExternalId",
+          "RT_C_R_ScanData" : "/POSLog/Transaction/RetailTransaction/Customer/r10Ex:ScanData",
+          "RT_C_ScanData" : "/POSLog/Transaction/RetailTransaction/Customer/ScanData",
+          "RT_C_V_LicensePlateID" : "/POSLog/Transaction/RetailTransaction/Customer/Vehicle/LicensePlateID",
+          "RT_LI_LR_LoyaltyID" : "/POSLog/Transaction/RetailTransaction/LineItem/LoyaltyReward/LoyaltyID",
+          "RT_LI_OS_A_ApplicationID" : "/POSLog/Transaction/RetailTransaction/LineItem/OnlineService/Authorization/ApplicationID",
+          "RT_LI_OS_A_AuthorizationCode" : "/POSLog/Transaction/RetailTransaction/LineItem/OnlineService/Authorization/AuthorizationCode",
+          "RT_LI_OS_A_MerchantNumber" : "/POSLog/Transaction/RetailTransaction/LineItem/OnlineService/Authorization/MerchantNumber",
+          "RT_LI_OS_A_ProviderData" : "/POSLog/Transaction/RetailTransaction/LineItem/OnlineService/Authorization/ProviderData",
+          "RT_LI_OS_A_R_ProviderData" : "/POSLog/Transaction/RetailTransaction/LineItem/OnlineService/Authorization/r10Ex:ProviderData",
+          "RT_LI_OS_A_ReferenceNumber" : "/POSLog/Transaction/RetailTransaction/LineItem/OnlineService/Authorization/ReferenceNumber",
+          "RT_LI_OS_CardNumber" : "/POSLog/Transaction/RetailTransaction/LineItem/OnlineService/CardNumber",
+          "RT_LI_ScanData" : "/POSLog/Transaction/RetailTransaction/LineItem/ScanData",
+          "RT_LI_T_A_ApplicationID" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/Authorization/ApplicationID",
+          "RT_LI_T_A_AuthorizationCode" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/Authorization/AuthorizationCode",
+          "RT_LI_T_A_ED_ApplicationIdentifier" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/Authorization/EMVDebug/ApplicationIdentifier",
+          "RT_LI_T_A_ED_PanSequenceNumber" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/Authorization/EMVDebug/PanSequenceNumber",
+          "RT_LI_T_A_ED_R_PanSequenceNumber" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/Authorization/EMVDebug/r10Ex:PanSequenceNumber",
+          "RT_LI_T_A_MerchantNumber" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/Authorization/MerchantNumber",
+          "RT_LI_T_A_ProviderData" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/Authorization/ProviderData",
+          "RT_LI_T_A_R_AuthResponseCode" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/Authorization/r10Ex:AuthorizationResponseCode",
+          "RT_LI_T_A_R_ProviderData" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/Authorization/r10Ex:ProviderData",
+          "RT_LI_T_A_ReferenceNumber" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/Authorization/ReferenceNumber",
+          "RT_LI_T_CCD_ExpirationDate" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/CreditDebit/ExpirationDate",
+          "RT_LI_T_CCD_FI_LicensePlateID" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/CreditDebit/FleetInformation/LicensePlateID",
+          "RT_LI_T_CCD_MaskedAccountId" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/CreditDebit/MaskedAccountId",
+          "RT_LI_T_CCD_PrimaryAccountNumber" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/CreditDebit/PrimaryAccountNumber",
+          "RT_LI_T_CCD_R_MaskedAccountId" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/CreditDebit/r10Ex:MaskedAccountId",
+          "RT_LI_T_GC_CardNumber" : "/POSLog/Transaction/RetailTransaction/LineItem/Tender/GiftCard/CardNumber"
+        },
+        "piits" : {
+          "jksFilePath" : "/opt/cloudera/security/jks/dev2-trust.jks",
+          "jksPassword" : "change-me",
+          "kmsEndPoint" : "https://dev2-cm-kms1:16000/kms/v1",
+          "krbFilePath" : "/etc/krb5.conf",
+          "masterKeyEDEKMappingTable" : "encryptedKeyLookup",
+          "piitsTableNamespace" : "default",
+          "tokenLookupTableNamePrefix" : "tokenLookup",
+          "tokenTableNamePrefix" : "token",
+          "zookeeperQuorum" : "dev2-cm-controlnode1,dev2-cm-controlnode2,dev2-cm-controlnode3"
+        },
+        "strategies" : {
+          "COT_C_AccountNumber" : "piits:SourceRegistrationId",
+          "COT_C_CD_AccountNumber" : "piits:SourceRegistrationId",
+          "COT_C_CV_AccountNumber" : "piits:SourceRegistrationId",
+          "COT_C_CustomerExternalId" : "piits:SourceRegistrationId",
+          "COT_C_CustomerID" : "piits:SourceRegistrationId",
+          "COT_C_Name" : "flag",
+          "COT_C_R_AccountNumber" : "piits:SourceRegistrationId",
+          "COT_C_R_CustomerExternalId" : "piits:SourceRegistrationId",
+          "COT_C_R_ScanData" : "piits:NectarCardId",
+          "COT_C_V_LicensePlateID" : "piits:SourceRegistrationId",
+          "COT_LI_OS_A_MerchantNumber" : "flag",
+          "COT_LI_OS_A_ProviderData" : "flag",
+          "COT_LI_OS_CardNumber" : "flag",
+          "COT_LI_T_A_AuthorizationResponseCode" : "flag",
+          "COT_LI_T_A_MerchantNumber" : "piits:SourceRegistrationId",
+          "COT_LI_T_A_ProviderData" : "flag",
+          "COT_LI_T_A_R_AuthorizationResponseCode" : "flag",
+          "COT_LI_T_A_ReferenceNumber" : "flag",
+          "COT_LI_T_CCD_ExpirationDate" : "flag",
+          "COT_LI_T_CCD_MaskedAccountId" : "flag",
+          "COT_LI_T_CCD_R_MaskedAccountId" : "flag",
+          "RT_C_AccountNumber" : "piits:SourceRegistrationId",
+          "RT_C_CD_AccountNumber" : "piits:SourceRegistrationId",
+          "RT_C_CV_AccountNumber" : "piits:SourceRegistrationId",
+          "RT_C_CustomerExternalId" : "piits:NectarCardId:8",
+          "RT_C_CustomerID" : "piits:NectarCardId",
+          "RT_C_N_Name" : "flag",
+          "RT_C_PrimaryAccountNumber" : "piits:SourceRegistrationId",
+          "RT_C_R_CustomerExternalId" : "piits:NectarCardId:8",
+          "RT_C_R_ScanData" : "piits:NectarCardId",
+          "RT_C_ScanData" : "piits:NectarCardId",
+          "RT_C_V_LicensePlateID" : "flag",
+          "RT_LI_LR_LoyaltyID" : "piits:NectarCardId",
+          "RT_LI_OS_A_ApplicationID" : "flag",
+          "RT_LI_OS_A_AuthorizationCode" : "flag",
+          "RT_LI_OS_A_MerchantNumber" : "flag",
+          "RT_LI_OS_A_ProviderData" : "flag",
+          "RT_LI_OS_A_R_ProviderData" : "flag",
+          "RT_LI_OS_A_ReferenceNumber" : "piits:SourceRegistrationId",
+          "RT_LI_OS_CardNumber" : "flag",
+          "RT_LI_ScanData" : "piits:NectarCardId",
+          "RT_LI_T_A_ApplicationID" : "flag",
+          "RT_LI_T_A_AuthorizationCode" : "flag",
+          "RT_LI_T_A_ED_ApplicationIdentifier" : "flag",
+          "RT_LI_T_A_ED_PanSequenceNumber" : "flag",
+          "RT_LI_T_A_ED_R_PanSequenceNumber" : "flag",
+          "RT_LI_T_A_MerchantNumber" : "flag",
+          "RT_LI_T_A_ProviderData" : "flag",
+          "RT_LI_T_A_R_AuthResponseCode" : "flag",
+          "RT_LI_T_A_R_ProviderData" : "flag",
+          "RT_LI_T_A_ReferenceNumber" : "flag",
+          "RT_LI_T_CCD_ExpirationDate" : "flag",
+          "RT_LI_T_CCD_FI_LicensePlateID" : "piits:SourceRegistrationId",
+          "RT_LI_T_CCD_MaskedAccountId" : "flag",
+          "RT_LI_T_CCD_PrimaryAccountNumber" : "flag",
+          "RT_LI_T_CCD_R_MaskedAccountId" : "flag",
+          "RT_LI_T_GC_CardNumber" : "flag"
+        }
+      },
+      "maxParallelism" : 128,
+      "type" : "XmlDesensitiserTransform"
+    },
+    {
+      "type" : "XmlEncoder"
+    },
+    {
+      "producer" : {
+        "bootstrap" : {
+          "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+        },
+        "max" : {
+          "block" : {
+            "ms" : 5000
+          }
+        },
+        "sasl" : {
+          "kerberos" : {
+            "service" : {
+              "name" : "kafka"
+            }
+          }
+        },
+        "security" : {
+          "protocol" : "SASL_SSL"
+        },
+        "ssl" : {
+          "truststore" : {
+            "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+            "password" : "change-me"
+          }
+        }
+      },
+      "topic" : "transaction_r10_updates",
+      "type" : "KafkaSink"
+    }
+  ]
+}

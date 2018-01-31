@@ -1,0 +1,218 @@
+{
+  "adapter" : {
+    "checkpoints" : {
+      "enabled" : true,
+      "storage" : {
+        "class" : "com.sainsburys.connect.api.storage.CheckpointStorageKafka",
+        "consumer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        },
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "error" : {
+      "handler" : {
+        "class" : "com.sainsburys.connect.api.errors.MalformedDataHandlerKafka",
+        "producer" : {
+          "bootstrap" : {
+            "servers" : "dev2-cm-kafkabroker1:9093,dev2-cm-kafkabroker2:9093,dev2-cm-kafkabroker3:9093"
+          },
+          "max" : {
+            "block" : {
+              "ms" : 5000
+            }
+          },
+          "sasl" : {
+            "kerberos" : {
+              "service" : {
+                "name" : "kafka"
+              }
+            }
+          },
+          "security" : {
+            "protocol" : "SASL_SSL"
+          },
+          "ssl" : {
+            "truststore" : {
+              "location" : "/opt/cloudera/security/jks/dev2-trust.jks",
+              "password" : "change-me"
+            }
+          }
+        }
+      }
+    },
+    "pipelineId" : "edw-nectar-updates",
+    "repeat" : {
+      "interval" : "1 minute"
+    }
+  },
+  "file" : "conf/customer_edw_nectar_updates.dev2.conf",
+  "pipeline" : [
+    {
+      "deleteOnCommit" : true,
+      "fileNameRegex" : ".*(\\.dat)",
+      "host" : "dev2-sftp",
+      "keyfile" : "~/.ssh/dpp3.pem",
+      "path" : "/upload/customer_edw_nectar_updates",
+      "port" : 22,
+      "type" : "SFTPDirSource",
+      "user" : "bdsdeveloper"
+    },
+    {
+      "type" : "TextFileTransform"
+    },
+    {
+      "schema" : {
+        "resource" : "/edw-schema-nectar-updates.txt"
+      },
+      "type" : "FixedSchemaDecoder"
+    },
+    {
+      "desensitise" : {
+        "piits" : {
+          "jksFilePath" : "/opt/cloudera/security/jks/dev2-trust.jks",
+          "jksPassword" : "change-me",
+          "kmsEndPoint" : "https://dev2-cm-kms1:16000/kms/v1",
+          "krbFilePath" : "/etc/krb5.conf",
+          "masterKeyEDEKMappingTable" : "encryptedKeyLookup",
+          "piitsTableNamespace" : "default",
+          "tokenLookupTableNamePrefix" : "tokenLookup",
+          "tokenTableNamePrefix" : "token",
+          "zookeeperQuorum" : "dev2-cm-controlnode1,dev2-cm-controlnode2,dev2-cm-controlnode3"
+        },
+        "strategies" : {
+          "indvl_date_birth" : "dateOfBirth",
+          "indvl_first_initl" : "flag",
+          "indvl_first_name" : "flag",
+          "indvl_last_name" : "flag",
+          "indvl_middle_initl" : "flag",
+          "lms_building_name" : "flag",
+          "lms_building_number" : "flag",
+          "lms_child1_date_of_birth" : "dateOfBirth",
+          "lms_child2_date_of_birth" : "dateOfBirth",
+          "lms_child3_date_of_birth" : "dateOfBirth",
+          "lms_child4_date_of_birth" : "dateOfBirth",
+          "lms_county" : "flag",
+          "lms_date_of_birth" : "dateOfBirth",
+          "lms_email_address" : "flag",
+          "lms_fax_no" : "flag",
+          "lms_first_name" : "flag",
+          "lms_flat_name" : "flag",
+          "lms_home_tel_no" : "flag",
+          "lms_middle_initial" : "flag",
+          "lms_mobile_tel_no" : "flag",
+          "lms_party_account_no" : "piits:SourceRegistrationId",
+          "lms_postcode" : "postcodeTrim",
+          "lms_street_address_1" : "flag",
+          "lms_street_address_2" : "flag",
+          "lms_street_address_3" : "flag",
+          "lms_surname" : "flag",
+          "lms_town" : "flag",
+          "lms_work_tel_no" : "flag",
+          "loc_build_number" : "flag",
+          "loc_building_name" : "flag",
+          "loc_county" : "flag",
+          "loc_dependent_locality" : "flag",
+          "loc_dependent_street_desc" : "flag",
+          "loc_dependent_street_name" : "flag",
+          "loc_double_dependent_locality" : "flag",
+          "loc_po_box" : "flag",
+          "loc_postcode" : "postcodeTrim",
+          "loc_street_description" : "flag",
+          "loc_street_name" : "flag",
+          "loc_sub_building_name" : "flag",
+          "loc_town" : "flag",
+          "paf_building_name" : "flag",
+          "paf_building_number" : "flag",
+          "paf_county" : "flag",
+          "paf_dependent_locality" : "flag",
+          "paf_double_dependent_locality" : "flag",
+          "paf_po_box" : "flag",
+          "paf_postcode" : "postcodeTrim",
+          "paf_sub_building_name" : "flag",
+          "paf_town" : "flag",
+          "sty_county" : "flag",
+          "sty_dob" : "dateOfBirth",
+          "sty_email" : "flag",
+          "sty_flat_number" : "flag",
+          "sty_fname" : "flag",
+          "sty_home_tel" : "flag",
+          "sty_house_name" : "flag",
+          "sty_house_number" : "flag",
+          "sty_postcode" : "postcodeTrim",
+          "sty_rcnum" : "piits:NectarCardId",
+          "sty_road_name" : "flag",
+          "sty_sname" : "flag",
+          "sty_town" : "flag",
+          "sty_userid" : "flag",
+          "sty_work_tel" : "flag"
+        }
+      },
+      "maxParallelism" : 100,
+      "type" : "DesensitiserTransform"
+    },
+    {
+      "separator" : ",",
+      "type" : "CsvEncoder"
+    },
+    {
+      "output" : {
+        "file" : {
+          "rename" : [
+            "\\.dat\\.gz",
+            ".dat"
+          ]
+        }
+      },
+      "s3BucketName" : "xx-dpp-dev-data-customer-uvc-nectar-app",
+      "s3Prefix" : "delta/",
+      "security" : {
+        "aws" : {}
+      },
+      "type" : "S3BucketSink"
+    }
+  ]
+}

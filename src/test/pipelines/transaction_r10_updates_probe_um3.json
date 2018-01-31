@@ -1,0 +1,31 @@
+{
+  "adapter" : {
+    "checkpoints" : {
+      "enabled" : false
+    },
+    "error" : {
+      "handler" : {
+        "class" : "com.sainsburys.connect.api.errors.IgnoreMalformedDataHandler"
+      }
+    },
+    "pipelineId" : "transaction-r10-updates-probe-um3"
+  },
+  "file" : "conf/transaction_r10_updates_probe_um3.prd.conf",
+  "pipeline" : [
+    {
+      "client" : {
+        "id" : "prd-transaction-r10"
+      },
+      "factoryLookupName" : "R10ESB_DPP_CF",
+      "initialContextFactory" : "com.pcbsys.nirvana.nSpace.NirvanaContextFactory",
+      "providerUrl" : "nsp://dsproxy3.mgt.xx-data-platform.io:16000",
+      "topic" : {
+        "name" : "Retail"
+      },
+      "type" : "JmsSource"
+    },
+    {
+      "type" : "NullSink"
+    }
+  ]
+}
